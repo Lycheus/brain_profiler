@@ -16,7 +16,6 @@ do
     name=`echo $file | sed 's/\.txt//'`
     
     for i in `seq 1 82`
-	     #for i in `seq 1 1`
     do
 	j=`expr $i + 1`
 	for k in `seq 0 9`
@@ -47,14 +46,16 @@ do
     
     #generate perfect (step brain), partial (almost step brain) and nonstep (rest of the cases)
     pushd output
-    grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10,/ &\n/g' | sed 's/:.*,//' > ${name}_step.csv
-    echo " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 count_100" >> ${name}_step.csv
-    grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10,/ &\n/g' | sed 's/:.*,//' | grep "0, 0, 0, 0, 0, 0, 0, 0, 0," > ${name}_perfect.csv
-    echo " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 count_100" >> ${name}_perfect.csv
-    grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10,/ &\n/g' | sed 's/:.*,//' | grep "0, 0, 0, 0, 0, [1-9][0-9]*," > ${name}_partial.csv
-    echo " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 count_100" >> ${name}_partial.csv
-    grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10,/ &\n/g' | sed 's/:.*,//' | grep "[1-9][0-9]*, [1-9][0-9]*, [1-9][0-9]*, [1-9][0-9]*, [1-9][0-9]*," > ${name}_nonstep.csv
-    echo " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 count_100" >> ${name}_nonstep.csv
+    grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10/ &,\n/g' | sed 's/:.*,//' > ../csv/${name}_step.csv
+    echo " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 count_100" >> ../csv/${name}_step.csv
+    grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10/ &,\n/g' | sed 's/:.*,//' | grep "0, 0, 0, 0, 0, 0, 0, 0, 0," > ../csv/${name}_perfect.csv
+    echo " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 count_100" >> ../csv/${name}_perfect.csv
+    grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10/ &,\n/g' | sed 's/:.*,//' | grep "0, 0, 0, 0, 0, [1-9][0-9]*," > ../csv/${name}_partial.csv
+    echo " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 count_100" >> ../csv/${name}_partial.csv
+    #grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10,/ &\n/g' | sed 's/:.*,//' | grep "[1-9][0-9]*, [1-9][0-9]*, [1-9][0-9]*, [1-9][0-9]*, [1-9][0-9]*," > ../csv/${name}_nonstep.csv
+    #grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10/ &,\n/g' | sed 's/:.*,//' | grep "[1-9][0-9]*, [1-9][0-9]*, [1-9][0-9]*, [1-9][0-9]*, [1-9][0-9]*," > ../csv/${name}_nonstep.csv
+    grep -HR "non_step"  | sed 's/count_.*:non_step.:/,/' | tr -d "\n" | sed 's/count_[0-9]*:non_step10/ &,\n/g' | sed 's/:.*,//' | grep -v "0, 0, 0, 0, 0, [1-9][0-9]*," | grep -v "0, 0, 0, 0, 0, 0, 0, 0, 0," > ../csv/${name}_nonstep.csv
+    echo " 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 count_100" >> ../csv/${name}_nonstep.csv
     popd
     
     # is the non-stepping top 5 same as stepwise top 5?
@@ -66,9 +67,9 @@ do
 	#print out the top effect brain cut out for each set in all cases
 	cat ./output/case_* | cut -d " " --complement -f1 | grep -E "^[LR]_[0-9a-zA-Z-]*(, [LR]_[0-9a-zA-Z-]*){"$i"}$" | sort | uniq -c | sort -gr > ./output/${name}_set_${j}
 	pushd output
-	cat `cat ${name}_perfect.csv | cut -d " " -f 12 | tr "\n" " " | sed 's/count_/case_/g'` | cut -d " " --complement -f1 | grep -E "^[LR]_[0-9a-zA-Z-]*(, [LR]_[0-9a-zA-Z-]*){"$i"}$" | sort | uniq -c | sort -gr > ./${name}_perfect_set_${j}
-	cat `cat ${name}_partial.csv | cut -d " " -f 12 | tr "\n" " " | sed 's/count_/case_/g'` | cut -d " " --complement -f1 | grep -E "^[LR]_[0-9a-zA-Z-]*(, [LR]_[0-9a-zA-Z-]*){"$i"}$" | sort | uniq -c | sort -gr > ./${name}_partial_set_${j}
-	cat `cat ${name}_nonstep.csv | cut -d " " -f 12 | tr "\n" " " | sed 's/count_/case_/g'` | cut -d " " --complement -f1 | grep -E "^[LR]_[0-9a-zA-Z-]*(, [LR]_[0-9a-zA-Z-]*){"$i"}$" | sort | uniq -c | sort -gr > ./${name}_nonstep_set_${j}
+	cat `cat ../csv/${name}_perfect.csv | cut -d " " -f 12 | tr "\n" " " | sed 's/count_/case_/g'` | cut -d " " --complement -f1 | grep -E "^[LR]_[0-9a-zA-Z-]*(, [LR]_[0-9a-zA-Z-]*){"$i"}$" | sort | uniq -c | sort -gr > ./${name}_perfect_set_${j}
+	cat `cat ../csv/${name}_partial.csv | cut -d " " -f 12 | tr "\n" " " | sed 's/count_/case_/g'` | cut -d " " --complement -f1 | grep -E "^[LR]_[0-9a-zA-Z-]*(, [LR]_[0-9a-zA-Z-]*){"$i"}$" | sort | uniq -c | sort -gr > ./${name}_partial_set_${j}
+	cat `cat ../csv/${name}_nonstep.csv | cut -d " " -f 12 | tr "\n" " " | sed 's/count_/case_/g'` | cut -d " " --complement -f1 | grep -E "^[LR]_[0-9a-zA-Z-]*(, [LR]_[0-9a-zA-Z-]*){"$i"}$" | sort | uniq -c | sort -gr > ./${name}_nonstep_set_${j}
 	popd
     done
 
